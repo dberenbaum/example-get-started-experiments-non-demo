@@ -1,4 +1,4 @@
 [core]
-    remote = storage
-['remote "storage"']
-    url = https://remote.dvc.org/get-started-pools
+    remote = s3_storage
+['remote "s3_storage"']
+    url = s3://dvc-public/remote/get-started-pools
