@@ -35,7 +35,8 @@ def parse_args():
     parser.add_argument("--fine_tune_args.epochs", type=int, dest="epochs")
     parser.add_argument("--fine_tune_args.base_lr", type=float, dest="base_lr")
     
-    return parser.parse_args()
+    args, _ = parser.parse_known_args()
+    return args
 
     
 def train(params):
