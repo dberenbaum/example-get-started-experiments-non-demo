@@ -11,15 +11,13 @@ stages:
     - data/test_data
     - data/train_data
   train:
-    cmd: python src/train.py
+    cmd: python src/train.py ${base} ${train}
     deps:
     - data/train_data
     - src/train.py
-    params:
-    - base
-    - train
     outs:
     - models/model.pkl
+    - models/model.pth
   evaluate:
     cmd: python src/evaluate.py
     deps:

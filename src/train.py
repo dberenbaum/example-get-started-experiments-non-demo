@@ -1,10 +1,10 @@
+import argparse
 import random
 from functools import partial
 from pathlib import Path
 
 import numpy as np
 import torch
-from box import ConfigBox
 from dvclive.fastai import DVCLiveCallback
 from fastai.data.all import Normalize, get_files
 from fastai.metrics import DiceMulti
@@ -24,12 +24,25 @@ def get_mask_path(x, train_data_dir):
     return Path(train_data_dir) / f"{Path(x).stem}.png"
 
 
-def train():
-    params = ConfigBox(yaml.load(open("params.yaml", encoding="utf-8")))
+def parse_args():
+    parser = argparse.ArgumentParser()
 
-    np.random.seed(params.base.random_seed)
-    torch.manual_seed(params.base.random_seed)
-    random.seed(params.base.random_seed)
+    parser.add_argument("--random_seed", type=int)
+    parser.add_argument("--valid_pct", type=float)
+    parser.add_argument("--arch", type=str)
+    parser.add_argument("--img_size", type=int)
+    parser.add_argument("--batch_size", type=int)
+    parser.add_argument("--fine_tune_args.epochs", type=int, dest="epochs")
+    parser.add_argument("--fine_tune_args.base_lr", type=float, dest="base_lr")
+    
+    return parser.parse_args()
+
+    
+def train(params):
+
+    np.random.seed(params.random_seed)
+    torch.manual_seed(params.random_seed)
+    random.seed(params.random_seed)
     train_data_dir = Path("data") / "train_data"
 
     data_loader = SegmentationDataLoaders.from_label_func(
@@ -37,9 +50,9 @@ def train():
         fnames=get_files(train_data_dir, extensions=".jpg"),
         label_func=partial(get_mask_path, train_data_dir=train_data_dir),
         codes=["not-pool", "pool"],
-        bs=params.train.batch_size,
-        valid_pct=params.train.valid_pct,
-        item_tfms=Resize(params.train.img_size),
+        bs=params.batch_size,
+        valid_pct=params.valid_pct,
+        item_tfms=Resize(params.img_size),
         batch_tfms=[
             Normalize.from_stats(*imagenet_stats),
         ],
@@ -52,21 +65,24 @@ def train():
         and name.islower()
         and name not in ("all", "tvm", "unet", "xresnet")
     ]
-    if params.train.arch not in model_names:
+    if params.arch not in model_names:
         raise ValueError(f"Unsupported model, must be one of:\n{model_names}")
 
     learn = unet_learner(
-        data_loader, arch=getattr(models, params.train.arch), metrics=DiceMulti
+        data_loader, arch=getattr(models, params.arch), metrics=DiceMulti
     )
 
     learn.fine_tune(
-        **params.train.fine_tune_args,
+        params.epochs, params.base_lr,
         cbs=[DVCLiveCallback(dir="results/train", report="md")],
     )
     models_dir = Path("models")
     models_dir.mkdir(exist_ok=True)
+    # save to fast ai format for evaluation.
     learn.export(fname=(models_dir / "model.pkl").absolute())
-
+    # save to pytorch for deployment.
+    learn.save(models_dir.absolute() / "model")
 
 if __name__ == "__main__":
-    train()
+    params = parse_args()
+    train(params)
