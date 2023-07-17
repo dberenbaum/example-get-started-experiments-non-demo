@@ -5,6 +5,7 @@ from pathlib import Path
 
 import numpy as np
 import torch
+from dvc.repo import Repo
 from dvclive.fastai import DVCLiveCallback
 from fastai.data.all import Normalize, get_files
 from fastai.metrics import DiceMulti
@@ -86,4 +87,5 @@ def train(params):
 
 if __name__ == "__main__":
     params = parse_args()
+    Repo().pull()
     train(params)
