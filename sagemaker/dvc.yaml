@@ -1,0 +1,22 @@
+stages:
+  upload:
+    cmd: aws s3 sync ../data/train_data s3://example-get-started-experiments-non-demo/data/train_data
+    deps:
+    - ../data/train_data
+    outs:
+    - s3://example-get-started-experiments-non-demo/data/train_data:
+        cache: false
+  train:
+    cmd: python train.py
+    deps:
+    - train.py
+    - ../src/train.py
+    - s3://example-get-started-experiments-non-demo/data/train_data
+    params:
+    - ../params.yaml:
+        - base
+        - train
+    outs:
+    - s3://example-get-started-experiments-non-demo/outputs:
+        cache: false
+    

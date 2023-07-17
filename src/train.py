@@ -1,4 +1,5 @@
 import argparse
+import os
 import random
 from functools import partial
 from pathlib import Path
@@ -36,6 +37,10 @@ def parse_args():
     parser.add_argument("--fine_tune_args.epochs", type=int, dest="epochs")
     parser.add_argument("--fine_tune_args.base_lr", type=float, dest="base_lr")
     
+    # input data and model directories
+    parser.add_argument('--model_dir', type=str, default=os.environ.get("SM_MODEL_DIR", "models"))
+    parser.add_argument('--train', type=str, default=os.environ.get("SM_CHANNEL_TRAIN", "data/train_data"))
+    
     args, _ = parser.parse_known_args()
     return args
 
@@ -45,7 +50,7 @@ def train(params):
     np.random.seed(params.random_seed)
     torch.manual_seed(params.random_seed)
     random.seed(params.random_seed)
-    train_data_dir = Path("data") / "train_data"
+    train_data_dir = Path(params.train)
 
     data_loader = SegmentationDataLoaders.from_label_func(
         path=train_data_dir,
@@ -78,7 +83,7 @@ def train(params):
         params.epochs, params.base_lr,
         cbs=[DVCLiveCallback(dir="results/train", report="md")],
     )
-    models_dir = Path("models")
+    models_dir = Path(params.model_dir)
     models_dir.mkdir(exist_ok=True)
     # save to fast ai format for evaluation.
     learn.export(fname=(models_dir / "model.pkl").absolute())
@@ -87,5 +92,4 @@ def train(params):
 
 if __name__ == "__main__":
     params = parse_args()
-    Repo().pull()
     train(params)

@@ -1,0 +1,50 @@
+schema: '2.0'
+stages:
+  upload:
+    cmd: aws s3 sync ../data/train_data s3://example-get-started-experiments-non-demo/data/train_data
+    deps:
+    - path: ../data/train_data
+      hash: md5
+      md5: 7d8e310076fa320c5cba76f1233e67d6.dir
+      size: 15279386
+      nfiles: 148
+    outs:
+    - path: s3://example-get-started-experiments-non-demo/data/train_data
+      hash: md5
+      md5: 3856674d5932167dea52f1f72020b49e.dir
+      size: 15279386
+      nfiles: 148
+  train:
+    cmd: python train.py
+    deps:
+    - path: ../src/train.py
+      hash: md5
+      md5: 965aa703111c29d08e0510138105d055
+      size: 2862
+    - path: s3://example-get-started-experiments-non-demo/data/train_data
+      hash: md5
+      md5: 3856674d5932167dea52f1f72020b49e.dir
+      size: 15279386
+      nfiles: 148
+    - path: train.py
+      hash: md5
+      md5: 8c37ad39de9982839f538abcb88fa54f
+      size: 1313
+    params:
+      ../params.yaml:
+        base:
+          random_seed: 42
+        train:
+          valid_pct: 0.1
+          arch: shufflenet_v2_x2_0
+          img_size: 256
+          batch_size: 8
+          fine_tune_args:
+            epochs: 8
+            base_lr: 0.01
+    outs:
+    - path: s3://example-get-started-experiments-non-demo/outputs
+      hash: md5
+      md5: 344037a33085384ef89afbcd60884bef.dir
+      size: 1709853
+      nfiles: 11

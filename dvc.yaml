@@ -10,13 +10,6 @@ stages:
     outs:
     - data/test_data
     - data/train_data
-  upload:
-    cmd: aws s3 sync data/train_data s3://example-get-started-experiments-non-demo/data/train_data
-    deps:
-    - data/train_data
-    outs:
-    - s3://example-get-started-experiments-non-demo/data/train_data:
-        cache: false
   train:
     cmd: python src/train.py ${base} ${train}
     deps:
