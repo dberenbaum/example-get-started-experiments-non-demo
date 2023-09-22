@@ -21,21 +21,21 @@ stages:
     outs:
     - path: data/test_data
       hash: md5
-      md5: 30f32cd75a9c6ce1c9d7bd0da85fc652.dir
-      size: 3580296
+      md5: fb0aa60b5ac86e33cb6ea0228556302b.dir
+      size: 3574193
       nfiles: 34
     - path: data/train_data
       hash: md5
-      md5: 923c0b04df28d718d2a0867eefcec779.dir
-      size: 15413430
+      md5: f608790452a51848fc3b1d4db347542d.dir
+      size: 15419533
       nfiles: 148
   train:
     cmd: python src/train.py
     deps:
     - path: data/train_data
       hash: md5
-      md5: 923c0b04df28d718d2a0867eefcec779.dir
-      size: 15413430
+      md5: f608790452a51848fc3b1d4db347542d.dir
+      size: 15419533
       nfiles: 148
     - path: src/train.py
       hash: md5
@@ -56,20 +56,20 @@ stages:
     outs:
     - path: models/model.pkl
       hash: md5
-      md5: 8aacee5e75f802ee6a4aba162acf5fb3
-      size: 200016
+      md5: 80f55af0231422b5716640f442605d35
+      size: 199760
   evaluate:
     cmd: python src/evaluate.py
     deps:
     - path: data/test_data
       hash: md5
-      md5: 30f32cd75a9c6ce1c9d7bd0da85fc652.dir
-      size: 3580296
+      md5: fb0aa60b5ac86e33cb6ea0228556302b.dir
+      size: 3574193
       nfiles: 34
     - path: models/model.pkl
       hash: md5
-      md5: 8aacee5e75f802ee6a4aba162acf5fb3
-      size: 200016
+      md5: 80f55af0231422b5716640f442605d35
+      size: 199760
     - path: src/evaluate.py
       hash: md5
       md5: e2d5d64f6064e95b7661b239b8b20626
@@ -79,4 +79,4 @@ stages:
         base:
           random_seed: 42
         evaluate:
-          n_samples_to_save: 10
+          n_samples_to_save: 20

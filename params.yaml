@@ -14,4 +14,4 @@ train:
     base_lr: 0.01
 
 evaluate:
-  n_samples_to_save: 10
+  n_samples_to_save: 20

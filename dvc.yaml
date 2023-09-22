@@ -29,3 +29,12 @@ stages:
     params:
     - base
     - evaluate
+params:
+- results/train/params.yaml
+metrics:
+- results/train/metrics.json
+- results/evaluate/metrics.json
+plots:
+- results/train/plots/metrics:
+    x: step
+- results/evaluate/plots/images
